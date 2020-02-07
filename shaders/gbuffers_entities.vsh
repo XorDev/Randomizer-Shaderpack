@@ -23,7 +23,7 @@ void main()
 
     float light = .8-.25*abs(normal.x*.9+normal.z*.3)+normal.y*.2;
 
-    color = vec4(vec3(1)*light, gl_Color.a);
+    color = vec4(gl_Color.rgb*light, gl_Color.a);
     coord0 = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     coord1 = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 }
