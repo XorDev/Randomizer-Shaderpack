@@ -20,14 +20,19 @@ vec2 hash(vec2 p)
 void main()
 {
     vec3 light = (1.-blindness) * texture2D(lightmap,coord1).rgb;
-    float a = texture2D(texture,coord0).a;
-    vec2 size = vec2(atlasSize/16);
+    vec4 a = texture2D(texture,coord0);
+    vec2 size = max(vec2(atlasSize/16),4.);
+    float fix = float(atlasSize.x==0);
 
+    vec4 col = vec4(0);
     vec2 t = hash(floor(coord0*size)+float(worldDay));
-    vec2 c = fract(coord0+floor(t)/size);
-    c.x += .5*step(.5,c.x)*step(fract(t.x),.9);
-    c.y += .5*step(.5,c.y)*step(fract(t.y),.5);
-    vec4 col = color * vec4(light,1) * vec4(texture2D(texture,c).rgb,a);
+    vec2 c = fract(coord0+floor(t)/size/(1.+3.*fix));
+    c += .5*step(.5,c)*step(fract(t),vec2(.9,.5))*(1.-fix);
+
+    vec4 b = texture2D(texture,c);
+    col = vec4(b.rgb+(mix(a,b,b.a)-b).rgb*fix,a.a);
+    col *= color * vec4(light,1);
+
     col.rgb = mix(col.rgb,entityColor.rgb,entityColor.a);
 
     float fog = (isEyeInWater>0) ? 1.-exp(-gl_FogFragCoord * gl_Fog.density):
